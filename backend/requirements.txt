@@ -1,0 +1,10 @@
+langchain
+langchain-community
+langgraph
+Flask
+flask-cors
+fastapi
+uvicorn
+python-multipart
+sqlalchemy
+psycopg2sudo apt install libpq-dev

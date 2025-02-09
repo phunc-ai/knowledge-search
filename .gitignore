@@ -1,0 +1,15 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.idea/
+.vscode/
+
+
+# Python
+__pycache__/
+*.pyc
+
+# Uploads folder
+uploads/
