@@ -7,4 +7,4 @@ fastapi
 uvicorn
 python-multipart
 sqlalchemy
-psycopg2sudo apt install libpq-dev
+psycopg2sudo
