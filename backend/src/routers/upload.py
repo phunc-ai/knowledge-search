@@ -4,11 +4,11 @@ import os
 from sqlalchemy.orm import Session
 from backend.src.db.models import Document
 from backend.src.db.session import SessionLocal
+from backend.src.config import config
 
 router = APIRouter()
 
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(config.UPLOAD_FOLDER, exist_ok=True)
 
 @router.post("/upload")
 async def upload_file(
@@ -19,7 +19,7 @@ async def upload_file(
     subcategory: str = Form(...),
     tags: str = Form(...)
 ):
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file_path = os.path.join(config.UPLOAD_FOLDER, file.filename)
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
