@@ -4,11 +4,12 @@ import os
 from sqlalchemy.orm import Session
 from backend.src.db.models import Document
 from backend.src.db.session import SessionLocal
-from backend.src.config import config
+from backend.src.parsers.llama_parser import LlamaParser
 
 router = APIRouter()
 
-os.makedirs(config.UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @router.post("/upload")
 async def upload_file(
@@ -19,12 +20,13 @@ async def upload_file(
     subcategory: str = Form(...),
     tags: str = Form(...)
 ):
-    file_path = os.path.join(config.UPLOAD_FOLDER, file.filename)
+    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
     with open(file_path, "wb") as buffer:
         buffer.write(await file.read())
 
-    # Simulate parsing the document
-    parsed_content = f"Parsed content of {file.filename}"
+    # Parse the document using LlamaParser
+    parser = LlamaParser()
+    parsed_content = await parser.aload_data(file_path)
 
     # Create a new Document row in the database
     db: Session = SessionLocal()
@@ -33,7 +35,7 @@ async def upload_file(
         uploaded_by="user",
         title=title,
         description=description,
-        content={"parsed_content": parsed_content},
+        content=parsed_content,
         document_metadata={
             "category": category,
             "subcategory": subcategory,
