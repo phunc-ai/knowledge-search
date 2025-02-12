@@ -11,17 +11,17 @@ class LlamaParser:
             result_type=result_type,  # "markdown" and "text" are available
             num_workers=num_workers,  # if multiple files passed, split in `num_workers` API calls
             verbose=verbose,
-            language=language,  # Optionally you can define a language, default=en
+            language=language,  # Optionally you can define a language, default=vi
         )
 
     def load_data(self, file_path):
         """Load data synchronously."""
         documents = self.parser.load_data(file_path)
         result = [{"page": idx + 1, "text": doc.text} for idx, doc in enumerate(documents)]
-        return json.dumps(result)
+        return result
 
     async def aload_data(self, file_path):
         """Load data asynchronously."""
         documents = await self.parser.aload_data(file_path)
         result = [{"page": idx + 1, "text": doc.text} for idx, doc in enumerate(documents)]
-        return json.dumps(result)
+        return result
