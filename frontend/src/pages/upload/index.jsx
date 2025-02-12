@@ -9,13 +9,15 @@ import {
   Chip,
   Box,
   Typography,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
-import { useDropzone } from "react-dropzone";
 import axios from "axios";
+import Header from "../../components/Header";
+import FileUpload from "./FileUpload";
+import ParsedContent from "./ParsedContent";
 
 axios.defaults.baseURL = "http://localhost:5000";
-
-import Header from "../../components/Header";
 
 const categories = [
   "Large Language Model",
@@ -43,28 +45,58 @@ const UploadPage = () => {
   const [subcategory, setSubcategory] = useState("");
   const [tags, setTags] = useState([]);
   const [file, setFile] = useState(null);
-  const [parsedContent, setParsedContent] = useState("");
+  const [parsedContent, setParsedContent] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
-  const onDrop = (acceptedFiles) => {
-    setFile(acceptedFiles[0]);
-  };
-
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
-
-  const handleUpload = async () => {
+  const handleParse = async () => {
+    setLoading(true);
     const formData = new FormData();
     formData.append("file", file);
+
+    try {
+      const response = await axios.post("/api/parse", formData);
+      console.log("Upload response:", response.data);
+      setParsedContent(Array.isArray(response.data.parsed_content) ? response.data.parsed_content : []);  // Ensure parsedContent is an array
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpload = async () => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("file", file);  // Ensure file is correctly appended
     formData.append("title", title);
     formData.append("description", description);
     formData.append("category", category);
     formData.append("subcategory", subcategory);
     formData.append("tags", tags.join(","));
+    formData.append("parsed_content", JSON.stringify(parsedContent));
 
     try {
       const response = await axios.post("/api/upload", formData);
-      setParsedContent(response.data.data);  // Display parsed content
+      alert("Document submitted successfully!");
+      // Hide parsed content after successful submission
+      setParsedContent([]);
     } catch (error) {
-      console.error("Error uploading file:", error);
+      console.error("Error submitting document:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < parsedContent.length - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
@@ -132,33 +164,26 @@ const UploadPage = () => {
         margin="normal"
         helperText="Enter tags separated by commas"
       />
-      <Box
-        {...getRootProps()}
-        sx={{
-          border: "2px dashed grey",
-          padding: 2,
-          textAlign: "center",
-          cursor: "pointer",
-          mb: 2,
-        }}
-      >
-        <input {...getInputProps()} />
-        {file ? (
-          <Typography>{file.name}</Typography>
-        ) : (
-          <Typography>
-            Drag & drop a file here, or click to select one
-          </Typography>
-        )}
+      <FileUpload file={file} setFile={setFile} />
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleParse}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} /> : "Parse Document"}
+        </Button>
       </Box>
-      <Button variant="contained" color="primary" onClick={handleUpload}>
-        Upload
-      </Button>
-      {parsedContent && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h5">Parsed Content</Typography>
-          <Typography>{parsedContent}</Typography>
-        </Box>
+      {parsedContent.length > 0 && (
+        <ParsedContent
+          parsedContent={parsedContent}
+          currentPage={currentPage}
+          handlePreviousPage={handlePreviousPage}
+          handleNextPage={handleNextPage}
+          handleUpload={handleUpload}
+          loading={loading}
+        />
       )}
     </Box>
   );
