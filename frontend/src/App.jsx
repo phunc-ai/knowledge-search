@@ -6,6 +6,7 @@ import Topbar from "./pages/global/Topbar";
 import Sidebar from "./pages/global/Sidebar";
 import FAQ from "./pages/faq";
 import Upload from "./pages/upload";
+import MetadataManagement from "./pages/metadata";
 import { ColorModeContext, useMode } from "./theme";
 
 function App() {
@@ -21,8 +22,9 @@ function App() {
           <main className="content">
             <Topbar setIsSidebar={setIsSidebar} />
             <Routes>
-              <Route path="/" element={<FAQ />}   />
+              <Route path="/" element={<FAQ />} />
               <Route path="/upload" element={<Upload />} />
+              <Route path="/metadata" element={<MetadataManagement />} />
               <Route path="/faq" element={<FAQ />} />
             </Routes>
           </main>
