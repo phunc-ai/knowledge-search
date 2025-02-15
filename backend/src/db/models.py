@@ -28,3 +28,18 @@ class DocumentChunk(Base):
     chunk_content = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
     document = relationship("Document", back_populates="chunks")
+
+class Category(Base):
+    __tablename__ = 'category'
+    id = Column(Integer, primary_key=True, index=True)
+    category = Column(String, unique=True, nullable=False)
+    subcategories = relationship("Subcategory", back_populates="category")
+
+class Subcategory(Base):
+    __tablename__ = 'subcategory'
+    id = Column(Integer, primary_key=True, index=True)
+    subcategory = Column(String, nullable=False)
+    category_id = Column(Integer, ForeignKey('category.id'), nullable=False)
+    created_user = Column(String, nullable=False)
+    created_time = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
+    category = relationship("Category", back_populates="subcategories")

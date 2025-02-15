@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -19,25 +19,6 @@ import ParsedContent from "./ParsedContent";
 
 axios.defaults.baseURL = "http://localhost:5000";
 
-const categories = [
-  "Large Language Model",
-  "Computer Vision",
-  "Machine Learning",
-];
-const subcategories = {
-  "Large Language Model": ["GPT-3", "BERT", "T5", "Llama"],
-  "Computer Vision": [
-    "Image Classification",
-    "Object Detection",
-    "Segmentation",
-  ],
-  "Machine Learning": [
-    "Supervised Learning",
-    "Unsupervised Learning",
-    "Reinforcement Learning",
-  ],
-};
-
 const UploadPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -48,6 +29,24 @@ const UploadPage = () => {
   const [parsedContent, setParsedContent] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState({});
+
+  useEffect(() => {
+    const fetchCategoriesSubcategories = async () => {
+      try {
+        const response = await axios.get(
+          "/api/metadata/get"
+        );
+        setCategories(Object.keys(response.data));
+        setSubcategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories and subcategories:", error);
+      }
+    };
+
+    fetchCategoriesSubcategories();
+  }, []);
 
   const handleParse = async () => {
     setLoading(true);
@@ -57,7 +56,11 @@ const UploadPage = () => {
     try {
       const response = await axios.post("/api/parse", formData);
       console.log("Upload response:", response.data);
-      setParsedContent(Array.isArray(response.data.parsed_content) ? response.data.parsed_content : []);  // Ensure parsedContent is an array
+      setParsedContent(
+        Array.isArray(response.data.parsed_content)
+          ? response.data.parsed_content
+          : []
+      ); // Ensure parsedContent is an array
     } catch (error) {
       console.error("Error uploading file:", error);
     } finally {
@@ -68,7 +71,7 @@ const UploadPage = () => {
   const handleUpload = async () => {
     setLoading(true);
     const formData = new FormData();
-    formData.append("file", file);  // Ensure file is correctly appended
+    formData.append("file", file); // Ensure file is correctly appended
     formData.append("title", title);
     formData.append("description", description);
     formData.append("category", category);

@@ -1,7 +1,13 @@
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import sessionmaker
 
-from backend.src.db.models import Base, Document, DocumentChunk
+from backend.src.db.models import (
+    Base,
+    Document,
+    DocumentChunk,
+    Category,
+    Subcategory,
+)
 
 DATABASE_URL = 'postgresql+psycopg2://phu:phu@localhost/eks'
 

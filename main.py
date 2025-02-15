@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.src.routers import upload
+from backend.src.routers import metadata
 
 load_dotenv()
 
@@ -17,6 +18,7 @@ app.add_middleware(
 )
 
 app.include_router(upload.router, prefix="/api")
+app.include_router(metadata.router, prefix="/api")
 
 if __name__ == '__main__':
     import uvicorn
